@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+            function pesquisaCidades(id) {
+                var select = document.getElementById("selectCidades");
+                select.innerHTML = "";
+                var xmlhttp = new XMLHttpRequest();
+                var url = "http://localhost:3000/"+id;
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        var myArr = JSON.parse(xmlhttp.responseText);
+                        popularCidades(myArr);
+                    }
+                };
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            }
+            function popularCidades(json) {
+                var select = document.getElementById("selectCidades");
+                var option = document.createElement("option");
+                option.value = json.json[0].idcidade;
+                option.text = json.json[0].cidade;
+                option.class = "cidade";
+                select.add(option);
+            }
+        </script>
+    </head>
+    <body>
+        <select onchange="pesquisaCidades(this.value)">
+            <option value="7">AL</option>
+            <option value="6">RN</option>
+            <option value="PB" disabled>PB</option>
+            
+        </select>
+        <select id="selectCidades">
+            <option value="7">Aracaju</option>
+        </select>
+    </body>
+</html>
