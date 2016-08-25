@@ -10,7 +10,7 @@
                 var select = document.getElementById("selectCidades");
                 select.innerHTML = "";
                 var xmlhttp = new XMLHttpRequest();
-                var url = "http://localhost:3000/"+id;
+                var url = "http://localhost:3000/estado/"+id;
                 xmlhttp.onreadystatechange = function() {
                     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                         var myArr = JSON.parse(xmlhttp.responseText);
