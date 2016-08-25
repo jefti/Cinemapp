@@ -45,7 +45,7 @@ app.get('/estado/:idestado', function(req,res){
             });
         }
     });
-
+});
 app.get('/cidade/:idcidade', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
@@ -122,23 +122,23 @@ app.get('/:estado/:cidade/:cinema/:genero/:filme', function(req,res){
                 err:    err.code
             });
         } else {
-            if (req.params.filme != '-------') {
+            if (req.params.filme != '*') {
                 sql +=existeFiltro(temFiltro);
                 temFiltro = true;
                 sql += "`filme`.`nomeDoFilme` = '"+req.params.filme+"'";
             }
-            if (req.params.cinema != '-------') {
+            if (req.params.cinema != '*') {
                 sql +=existeFiltro(temFiltro);
                 temFiltro = true;
                 
                 sql += "`cinema`.`nomeCinema` = '"+req.params.cinema+"'";
             } else {
-                if (req.params.cidade != '-------') {
+                if (req.params.cidade != '*') {
                     sql +=existeFiltro(temFiltro);
                     temFiltro = true;
                     sql += "`cidade`.`nomeCidade` = '"+req.params.cidade+"'";
                 } else {
-                    if (req.params.estado != '-------') {
+                    if (req.params.estado != '*') {
                         sql +=existeFiltro(temFiltro);
                         temFiltro = true;
                         sql += "`estado`.`siglaEstado` = '"+req.params.estado+"'";
@@ -171,6 +171,6 @@ app.get('/:estado/:cidade/:cinema/:genero/:filme', function(req,res){
         }
     });
 });
- 
+app.pos
 app.listen(3000);
 console.log('Rest Demo Listening on port 3000');
