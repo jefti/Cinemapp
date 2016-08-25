@@ -14,7 +14,7 @@ function existeFiltro(temFiltro) {
         return " WHERE ";
     }
 }
-app.get('/:estado', function(req,res){
+app.get('/estado/:idestado', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ',err);
@@ -24,7 +24,7 @@ app.get('/:estado', function(req,res){
                 err:    err.code
             });
         } else {
-            sql = 'SELECT `cidade`.`idcidade` AS `idcidade`, `cidade`.`nomeCidade` AS `cidade` FROM `cidade` WHERE `cidade`.`idestado` = '+req.params.estado;
+            sql = 'SELECT `cidade`.`idcidade` AS `idcidade`, `cidade`.`nomeCidade` AS `cidade` FROM `cidade` WHERE `cidade`.`idestado` = '+req.params.idestado;
             connection.query(sql, req.params.id, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
