@@ -45,6 +45,38 @@ app.get('/estado/:idestado', function(req,res){
             });
         }
     });
+
+app.get('/cidade/:idcidade', function(req,res){
+    connectionpool.getConnection(function(err, connection) {
+        if (err) {
+            console.error('CONNECTION error: ',err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err:    err.code
+            });
+        } else {
+            sql = 'SELECT `cinema`.`idcinema` AS `idcinema`, `cinema`.`nomeCinema` AS `cinema` FROM `cinema` WHERE `cinema`.`idcidade` = '+req.params.idcidade;
+            connection.query(sql, req.params.id, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err:    err.code
+                    });
+                }
+                res.header("Access-Control-Allow-Origin", "*");
+                res.send({
+                    result: 'success',
+                    err:    '',
+                    json:   rows,
+                    length: rows.length
+                });
+                connection.release();
+            });
+        }
+    });
 });
 app.get('/:estado/:cidade/:cinema/:genero/:filme', function(req,res){
     connectionpool.getConnection(function(err, connection) {
