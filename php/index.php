@@ -167,7 +167,7 @@ function calcularPreco($indice, $listaPrecos, $feriados, $faltaQuantosDias) {
 function cadastrarFilme($nome, $classifEtaria, $tagInicioDiretores, $tagFinalDiretores, $tagInicioElenco, $tagFinalElenco, $tagInicioGeneros, $tagFinalGeneros, $tagInicioSinopse, $tagFinalSinopse) {
     //Dados para a conex�o com o banco de dados
     echo 1;
-    $servidor = '127.0.0.1';
+    $servidor = 'localhost:3306';
     $usuario = 'root';
     $senha = 'root';
     $banco = 'cinemapp_bd';
@@ -265,7 +265,7 @@ function cadastrarFilme($nome, $classifEtaria, $tagInicioDiretores, $tagFinalDir
 function cadastrarLocais($endereco) {
     //Dados para a conex�o com o banco de dados
     echo '<br>Entrou no cadastro de local!';
-    $servidor = '127.0.0.1';
+    $servidor = 'localhost:3306';
     $usuario = 'root';
     $senha = 'root';
     $banco = 'cinemapp_bd';
@@ -277,8 +277,8 @@ function cadastrarLocais($endereco) {
         exit;
     }
     
-    mysqli_query("SET NAMES utf8");
-    mysqli_query("SET CHARACTER_SET utf8");
+    mysqli_query($link, "SET NAMES utf8");
+    mysqli_query($link, "SET CHARACTER_SET utf8");
     
     $sql = 'SELECT idcinema FROM cinema WHERE nomeCinema = "'.$endereco[2].'"';
     $result = mysqli_query($link, $sql);
@@ -339,7 +339,7 @@ function cadastrarLocais($endereco) {
 }
 
 function cadastrarSessoes($matriz) {
-    $servidor = '127.0.0.1';
+    $servidor = 'localhost:3306';
     $usuario = 'root';
     $senha = 'root';
     $banco = 'cinemapp_bd';
@@ -351,8 +351,8 @@ function cadastrarSessoes($matriz) {
         exit;
     }
     
-    mysqli_query("SET NAMES utf8");
-    mysqli_query("SET CHARACTER_SET utf8");
+    mysqli_query($link, "SET NAMES utf8");
+    mysqli_query($link, "SET CHARACTER_SET utf8");
     
     $sql_remocao = 'DELETE FROM sessao';
     $result = mysqli_query($link, $sql_remocao);

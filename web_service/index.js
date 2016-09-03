@@ -1,12 +1,15 @@
 var express = require('express'),
     app     = express(),
     mysql   = require('mysql'),
+    bodyparser = require('body-parser'),
     connectionpool = mysql.createPool({
         host     : 'localhost',
         user     : 'root',
         password : 'root',
         database : 'cinemapp_bd'
     });
+app.use(bodyparser.urlencoded({extended: true}));
+app.use(bodyparser.json());
 function existeFiltro(temFiltro) {
     if (temFiltro) {
         return " AND ";
@@ -14,6 +17,65 @@ function existeFiltro(temFiltro) {
         return " WHERE ";
     }
 }
+app.post('/', function(req,res){
+    connectionpool.getConnection(function(err, connection) {
+        if (err) {
+            console.error('CONNECTION error: ',err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err:    err.code
+            });
+        } else {
+            if (req.body.tipo = "cidade") {
+                sql = 'SELECT `cidade`.`idcidade` AS `idcidade`, `cidade`.`nomeCidade` AS `cidade` FROM `cidade` WHERE `cidade`.`idestado` = '+req.body.idestado;
+                connection.query(sql,function(err, rows) {
+                    if (err) {
+                        console.error(err);
+                        res.statusCode = 500;
+                        res.send({
+                            result: 'error',
+                            err:    err.code
+                        });
+                    }
+                    res.header("Access-Control-Allow-Origin", "*");
+                    res.send({
+                        result: 'success',
+                        err:    '',
+                        json:   rows,
+                        length: rows.length
+                    });
+                    connection.release();
+                });
+            } else if (req.body.tipo = "filme") {
+                sql = 'SELECT `filme`.`idfilme` AS `idfilme`, `filme`.`nomeDoFilme` AS `filme` FROM `filme` JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` WHERE `sessao`.`idcinema` = '+req.body.idcinema+' GROUP BY `filme`.`idfilme`';
+                connection.query(sql,function(err, rows) {
+                    if (err) {
+                        console.error(err);
+                        res.statusCode = 500;
+                        res.send({
+                            result: 'error',
+                            err:    err.code
+                        });
+                    }
+                    res.header("Access-Control-Allow-Origin", "*");
+                    res.send({
+                        result: 'success',
+                        err:    '',
+                        json:   rows,
+                        length: rows.length
+                    });
+                    connection.release();
+                });
+            } else if (req.body.tipo = "genero") {
+                
+            } else if (req.body.tipo = "estado") {
+                
+            }
+            
+        }
+    });
+});
 app.get('/estado/:idestado', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
