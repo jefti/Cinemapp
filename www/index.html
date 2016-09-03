@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2016 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+
+    <!--importação e codigos javascript portable
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.min.css" />
+    <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.min.js"></script>
+-->
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <!--importação e codigos javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <style>
+        button.accordion {
+            background-color: #011f4b;
+            color: #808080;
+            cursor: pointer;
+            padding: 18px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            transition: 0.4s;
+        }
+
+            button.accordion.active, button.accordion:hover {
+                background-color: #011f4b;
+            }
+
+        div.painel {
+            padding: 0 18px;
+            background-color: #005b96;
+            max-height: 0;
+            overflow: hidden;
+            transition: 0.6s ease-in-out;
+            opacity: 0;
+            border: solid 1px #011f4b;
+        }
+
+            div.painel.show {
+                opacity: 1;
+                max-height: 500px;
+            }
+        #resultados, #selecionarpagina
+         {
+            display:none;
+        }
+    </style>
+
+    
+    <title>CINEMApp</title>
+</head>
+
+<body >
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+               
+
+
+                <button type="button" class="navbar-toggle collapsed " data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+                <a class="navbar-brand " href="#">CINEMApp</a>s
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Sessões</a></li>
+                    <li><a href="#indicaçoes" onclick="callAnothePage('tela2.html')">Sobre</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+
+        <div id="filtros">
+        <button class="accordion col-sm-12"><span class="glyphicon glyphicon-facetime-video" aria-hidden="true"></span> Filtros por Filmes</button>
+        <div class="painel">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="SelectFilmes" class="col-sm-2 control-label">Nome do Filme :</label>
+                    <div class="col-sm-10">
+                        <select id="SelectFilmes" class="form-control">
+                            <option>Filmex</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="SelectTipo" class="col-sm-2 control-label">Dublagem :</label>
+                    <div class="col-sm-10">
+                        <select id="SelectTipo" class="form-control">
+                            <option value="Ro">Dublado</option>
+                            <option value="Te">Legendado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="SelectGenero" class="col-sm-2 control-label">Gênero :</label>
+                    <div class="col-sm-10">
+                        <select id="SelectGenero" class="form-control">
+                            <option value="An">Animação</option>
+                            <option value="Av">Aventura</option>
+                            <option value="Co">Comédia</option>
+                            <option value="Do">Documentario</option>
+                            <option value="Dr">Drama</option>
+                            <option value="Fi">Ficção</option>
+                            <option value="Lu">Luta</option>
+                            <option value="Mu">Musical</option>
+                            <option value="Ro">Romance</option>
+                            <option value="Te">Terror</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="SelectClasificacao" class="col-sm-2 control-label">Classificação :</label>
+                    <div class="col-sm-10">
+                        <select id="SelectClasificacao" class="form-control">
+                            <option>Livre</option>
+                            <option>+10</option>
+                            <option>+12</option>
+                            <option>+14</option>
+                            <option>+16</option>
+                            <option>+18</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Nota :</label>
+                    <div class="col-sm-10">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox0" value="option3"> 0
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox1" value="option1"> 1
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox2" value="option2"> 2
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox3" value="option3"> 3
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox4" value="option1"> 4
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox5" value="option2"> 5
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <button class="accordion"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Filtros por Sessões</button>
+        <div class="painel">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="SelectCinema" class="col-sm-2 control-label">Cinema :</label>
+                    <div class="col-sm-10">
+                        <select id="SelectCinema" class="form-control">
+                            <option>Cinemark</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="InputLocalizacao" class="col-sm-2 control-label">Localização :</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="InputLocalizacao" class="form-control" placeholder="Indisponivel">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="SelectEstado" class="col-sm-2 control-label">Estado :</label>
+                    <div class="col-sm-10">
+                        <select id="SelectEstado" class="form-control">
+                            <option value="ac">Acre</option>
+                            <option value="al">Alagoas</option>
+                            <option value="am">Amazonas</option>
+                            <option value="ap">Amapá</option>
+                            <option value="ba">Bahia</option>
+                            <option value="ce">Ceará</option>
+                            <option value="df">Distrito Federal</option>
+                            <option value="es">Espírito Santo</option>
+                            <option value="go">Goiás</option>
+                            <option value="ma">Maranhão</option>
+                            <option value="mt">Mato Grosso</option>
+                            <option value="ms">Mato Grosso do Sul</option>
+                            <option value="mg">Minas Gerais</option>
+                            <option value="pa">Pará</option>
+                            <option value="pb">Paraíba</option>
+                            <option value="pr">Paraná</option>
+                            <option value="pe">Pernambuco</option>
+                            <option value="pi">Piauí</option>
+                            <option value="rj">Rio de Janeiro</option>
+                            <option value="rn">Rio Grande do Norte</option>
+                            <option value="ro">Rondônia</option>
+                            <option value="rs">Rio Grande do Sul</option>
+                            <option value="rr">Roraima</option>
+                            <option value="sc">Santa Catarina</option>
+                            <option value="se">Sergipe</option>
+                            <option value="sp">São Paulo</option>
+                            <option value="to">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="SelectPreco" class="col-sm-2 control-label">Preço:</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <div class="input-group-addon">R$</div>
+                            <input type="text" class="form-control" id="PrecoMinimo" placeholder="Mínimo">
+                            <div class="input-group-addon">.00</div>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-addon">R$</div>
+                            <input type="text" class="form-control" id="PrecoMaximo" placeholder="Maximo">
+                            <div class="input-group-addon">.00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Hora :</label>
+                    <div class="col-sm-10">
+                        De :
+                        <input type="time" name="horaminima">
+                        Até :
+                        <input type="time" name="horamaxima">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <button class="accordion"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Outros Filtros</button>
+        <div class="painel">
+        </div>
+
+    </div>
+
+        <div id="resultados">
+        <form>
+            <fieldset>
+                <div class="row resultado">
+
+                    <div class="col-xs-6" width="50px">
+                        <img align="left" src="img/suicida.jpg" height="100%" width="100%" class="img-rounded">
+                    </div>
+                    <div class="col-xs-6">
+                        <label for="nomefilme">Nome do Filme: </label><br />
+                        <label for="dateehora">data & hora </label><br />
+                        <label for="local"> Local </label><br />
+                        <label for="nomefilme">Preço</label><br />
+                        <img align="bottom" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/DJCTQ_-_16.svg/75px-DJCTQ_-_16.svg.png" height="45" width="45" class="img-rounded">
+                        <img align="bottom" src="img/dublado.png" width="45" height="45" class="img-rounded">
+                        <img align="bottom" src="https://lh4.ggpht.com/YXzBmS7AyZN689K9Yif1tdyK5VnvXS7CGIIu62R6W7V3SdWuzMHnHTUyKE_8vabaPe8P=w300" width="45" height="45" class="img-rounded">
+                    </div>
+                </div>
+                <div class="row resultado">
+
+                    <div class="col-xs-6" width="50px">
+                        <img align="left" src="img/suicida.jpg" height="100%" width="100%" class="img-rounded">
+                    </div>
+                    <div class="col-xs-6">
+                        <label for="nomefilme">Nome do Filme: </label><br />
+                        <label for="dateehora">data & hora </label><br />
+                        <label for="local"> Local </label><br />
+                        <label for="nomefilme">Preço</label><br />
+                        <img align="bottom" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/DJCTQ_-_16.svg/75px-DJCTQ_-_16.svg.png" height="45" width="45" class="img-rounded">
+                        <img align="bottom" src="img/dublado.png" width="45" height="45" class="img-rounded">
+                        <img align="bottom" src="https://lh4.ggpht.com/YXzBmS7AyZN689K9Yif1tdyK5VnvXS7CGIIu62R6W7V3SdWuzMHnHTUyKE_8vabaPe8P=w300" width="45" height="45" class="img-rounded">
+                    </div>
+                </div>
+                <div class="row resultado">
+
+                    <div class="col-xs-6" width="50px">
+                        <img align="left" src="img/suicida.jpg" height="100%" width="100%" class="img-rounded">
+                    </div>
+                    <div class="col-xs-6">
+                        <label for="nomefilme">Nome do Filme: </label><br />
+                        <label for="dateehora">data & hora </label><br />
+                        <label for="local"> Local </label><br />
+                        <label for="nomefilme">Preço</label><br />
+                        <img align="bottom" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/DJCTQ_-_16.svg/75px-DJCTQ_-_16.svg.png" height="45" width="45" class="img-rounded">
+                        <img align="bottom" src="img/dublado.png" width="45" height="45" class="img-rounded">
+                        <img align="bottom" src="https://lh4.ggpht.com/YXzBmS7AyZN689K9Yif1tdyK5VnvXS7CGIIu62R6W7V3SdWuzMHnHTUyKE_8vabaPe8P=w300" width="45" height="45" class="img-rounded">
+                    </div>
+                </div>
+                <div class="row resultado">
+
+                    <div class="col-xs-6" width="50px">
+                        <img align="left" src="img/suicida.jpg" height="100%" width="100%" class="img-rounded">
+                    </div>
+                    <div class="col-xs-6">
+                        <label for="nomefilme">Nome do Filme: </label><br />
+                        <label for="dateehora">data & hora </label><br />
+                        <label for="local"> Local </label><br />
+                        <label for="nomefilme">Preço</label><br />
+                        <img align="bottom" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/DJCTQ_-_16.svg/75px-DJCTQ_-_16.svg.png" height="45" width="45" class="img-rounded">
+                        <img align="bottom" src="img/dublado.png" width="45" height="45" class="img-rounded">
+                        <img align="bottom" src="https://lh4.ggpht.com/YXzBmS7AyZN689K9Yif1tdyK5VnvXS7CGIIu62R6W7V3SdWuzMHnHTUyKE_8vabaPe8P=w300" width="45" height="45" class="img-rounded">
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+        </div>
+
+
+
+    <nav class="navbar navbar-inverse navbar-fixed-bottom">
+        <div class="container">
+            <center>
+            <nav aria-label="Page navigation">
+              <div id="botaofiltro" class="filtrotoggle">
+                  <center>
+                      <button type="button" class="btn btn-primary btn-lg">
+                          <span class="glyphicon glyphicon-filter"></span>
+                      </button>
+                  </center>
+                </div>
+                <div id="botaopesquisar">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </center>
+                </div>
+            </nav>
+            </center>
+        </div>
+    </nav>
+    <script>
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+    acc[i].onclick = function(){
+        this.classList.toggle("active");
+        this.nextElementSibling.classList.toggle("show");
+  }
+}
+$(" #botaofiltro").click(function () {
+    $("#resultados, #botaofiltro").hide();
+    $("#filtros, #botaopesquisar").show();
+    $('html, body').animate({ scrollTop: 0 }, 800);
+});
+$(" #botaopesquisar").click(function () {
+    $("#resultados, #botaofiltro").show();
+    $("#filtros, #botaopesquisar").hide();
+    $('html, body').animate({ scrollTop: 0 }, 800);
+
+});
+    </script>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+        <!--mais script javascript -->
+        <script src='css/landing.php'></script>
+        <!-- Inclui todos os plugins compilados (abaixo), ou inclua arquivos separadados se necessário -->
+        <script src="js/bootstrap.min.js"></script>
+        <!-- jQuery (obrigatório para plugins JavaScript do Bootstrap) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+</body>
+
+</html>
