@@ -27,7 +27,7 @@ app.post('/', function(req,res){
                 err:    err.code
             });
         } else {
-            if (req.body.tipo = "cidade") {
+            if (req.body.tipo == "cidade") {
                 sql = 'SELECT `cidade`.`idcidade` AS `idcidade`, `cidade`.`nomeCidade` AS `cidade` FROM `cidade` WHERE `cidade`.`idestado` = '+req.body.idestado;
                 connection.query(sql,function(err, rows) {
                     if (err) {
@@ -47,7 +47,7 @@ app.post('/', function(req,res){
                     });
                     connection.release();
                 });
-            } else if (req.body.tipo = "filme") {
+            } else if (req.body.tipo == "filme") {
                 sql = 'SELECT `filme`.`idfilme` AS `idfilme`, `filme`.`nomeDoFilme` AS `filme` FROM `filme` JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` WHERE `sessao`.`idcinema` = '+req.body.idcinema+' GROUP BY `filme`.`idfilme`';
                 connection.query(sql,function(err, rows) {
                     if (err) {
@@ -67,16 +67,98 @@ app.post('/', function(req,res){
                     });
                     connection.release();
                 });
-            } else if (req.body.tipo = "genero") {
+            } else if (req.body.tipo == "genero") {
                 
-            } else if (req.body.tipo = "estado") {
-                
+            } else if (req.body.tipo == "estado") {
+                sql = 'SELECT `estado`.`idestado` AS `idestado`, `estado`.`siglaEstado` AS `siglaEstado` FROM `estado`';
+                connection.query(sql,function(err, rows) {
+                    if (err) {
+                        console.error(err);
+                        res.statusCode = 500;
+                        res.send({
+                            result: 'error',
+                            err:    err.code
+                        });
+                    }
+                    res.header("Access-Control-Allow-Origin", "*");
+                    res.send({
+                        result: 'success',
+                        err:    '',
+                        json:   rows,
+                        length: rows.length
+                    });
+                    connection.release();
+                });
             }
             
         }
     });
 });
-app.get('/estado/:idestado', function(req,res){
+app.get('/estado/', function(req,res){
+    connectionpool.getConnection(function(err, connection) {
+        if (err) {
+            console.error('CONNECTION error: ',err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err:    err.code
+            });
+        } else {
+            sql = 'SELECT `estado`.`idestado` AS `idestado`, `estado`.`siglaEstado` AS `siglaEstado` FROM `estado`';
+            connection.query(sql, req.params.id, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err:    err.code
+                    });
+                }
+                res.header("Access-Control-Allow-Origin", "*");
+                res.send({
+                    result: 'success',
+                    err:    '',
+                    json:   rows,
+                    length: rows.length
+                });
+                connection.release();
+            });
+        }
+    });
+});
+app.get('/localizacao/', function(req,res){
+    connectionpool.getConnection(function(err, connection) {
+        if (err) {
+            console.error('CONNECTION error: ',err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err:    err.code
+            });
+        } else {
+            sql = 'SELECT `cinema`.`idcinema` AS `idcinema`, `cinema`.`latitude` AS `latitude`, `cinema`.`longitude` AS `longitude` FROM `cinema`';
+            connection.query(sql, req.params.id, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err:    err.code
+                    });
+                }
+                res.header("Access-Control-Allow-Origin", "*");
+                res.send({
+                    result: 'success',
+                    err:    '',
+                    json:   rows,
+                    length: rows.length
+                });
+                connection.release();
+            });
+        }
+    });
+});
+app.get('/cidade/:idestado', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ',err);
@@ -108,7 +190,7 @@ app.get('/estado/:idestado', function(req,res){
         }
     });
 });
-app.get('/cidade/:idcidade', function(req,res){
+app.get('/filme/:idcinema/:index', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ',err);
@@ -118,7 +200,7 @@ app.get('/cidade/:idcidade', function(req,res){
                 err:    err.code
             });
         } else {
-            sql = 'SELECT `cinema`.`idcinema` AS `idcinema`, `cinema`.`nomeCinema` AS `cinema` FROM `cinema` WHERE `cinema`.`idcidade` = '+req.params.idcidade;
+            sql = 'SELECT `filme`.`idfilme` AS `idfilme`, `filme`.`avaliacao` AS `avaliacao`, `filme`.`nomeDoFilme` AS `nomeDoFilme`, `filme`.`classificacaoEtaria` AS `classifEtaria`, `filme`.`sinopse` AS `sinopse`, `filme`.`imagem` AS `imagem`, GROUP_CONCAT(DISTINCT `genero`.`idgenero` SEPARATOR ", ") AS `generos` FROM `genero` JOIN `filme_genero` ON `genero`.`idgenero` = `filme_genero`.`idgenero` JOIN `filme` ON `filme_genero`.`idfilme` = `filme`.`idfilme` JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` WHERE `sessao`.`idcinema` = '+req.params.idcinema+' GROUP BY `filme`.`nomeDoFilme`';
             connection.query(sql, req.params.id, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -133,7 +215,8 @@ app.get('/cidade/:idcidade', function(req,res){
                     result: 'success',
                     err:    '',
                     json:   rows,
-                    length: rows.length
+                    length: rows.length,
+                    index: req.params.index
                 });
                 connection.release();
             });

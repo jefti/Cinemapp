@@ -167,6 +167,7 @@ function calcularPreco($indice, $listaPrecos, $feriados, $faltaQuantosDias) {
 function cadastrarFilme($nome, $classifEtaria, $tagInicioDiretores, $tagFinalDiretores, $tagInicioElenco, $tagFinalElenco, $tagInicioGeneros, $tagFinalGeneros, $tagInicioSinopse, $tagFinalSinopse) {
     //Dados para a conex�o com o banco de dados
     echo 1;
+    $generos = [];
     $servidor = 'localhost:3306';
     $usuario = 'root';
     $senha = 'root';
@@ -199,64 +200,35 @@ function cadastrarFilme($nome, $classifEtaria, $tagInicioDiretores, $tagFinalDir
         echo '<br>n�o vazio';
         $idfilme = $tbl[0];
     } else {
-        echo '<br>vazio';
-        $palavrasChave = str_replace(' ', '+', $nome);
-        $saida = buscarHTML("http://www.imdb.com/find?q=".$palavrasChave);
-        //preg_match('/findResult odd(.*)result_text/sU', $saida, $linkAdoroCinema);
-        //print_r($linkAdoroCinema);
-        preg_match('/findResult odd(.*)\/title\/(.*)" >/sU', $saida, $linkAdoroCinema);
-        echo '<br>link: http://www.imdb.com/title/'.$linkAdoroCinema[2].'<br>';
-        $paginaAdoroCinema = buscarHTML('http://www.imdb.com/title/'.$linkAdoroCinema[2].'/');
-        $diretores = pregAllFunction($tagInicioDiretores, $tagFinalDiretores, $paginaAdoroCinema);
-        $direcao = '';
-        for ($i = 0; $i < count($diretores); $i++) {
-            $direcao .= $diretores[$i];
-            if (($i+2) == count($diretores)) {
-                $direcao .= ' e ';
-            } else if (($direcao != '') && ($i + 1 < count($diretores))) {
-                $direcao .= ', ';
-            }
-        }
-        $elenco = pregAllFunction($tagInicioElenco, $tagFinalElenco, $paginaAdoroCinema);
-        print_r($elenco);
-        $atores = '';
-        for ($i = 0; $i < count($elenco); $i++) {
-            $atores .= $elenco[$i];
-            if (($i+2) == count($elenco)) {
-                $atores .= ' e ';
-            } else if (($atores != '') && ($i + 1 < count($elenco))) {
-                $atores .= ', ';
+        $saida = json_decode(buscarHTML("https://api.themoviedb.org/3/search/movie?api_key=ca07563cc734bc1679ebeb98b0421676&language=pt-BR&include_adult=false&query=".urlencode($nome)));
+        $saida = ($saida->results[0]);
+        $nome = $saida->title;
+        $sql = 'SELECT idfilme FROM filme WHERE nomeDoFilme = "'.$nome.'"';
+        $result = mysqli_query($link, $sql);
+        if ($tbl = mysqli_fetch_array($result)) {
+            echo '<br>n�o vazio';
+            $idfilme = $tbl[0];
+        } else {
+            echo 'vazio';
+            $imagem = "https://image.tmdb.org/t/p/w300_and_h450_bestv2".$saida->poster_path;
+            $sinopse = $saida->overview;
+            $idGeneros = $saida->genre_ids;
+            $nome = $saida->title;
+            $avaliacao = $saida->vote_average;
+            echo '<br>cheguei no insert';
+            $sql = 'INSERT INTO filme (nomeDoFilme, avaliacao, classificacaoEtaria, sinopse, imagem) VALUES ("'.$nome.'", '.round($avaliacao, 1).', '.$classifEtaria.', "'.$sinopse.'", "'.$imagem.'")';
+            echo '<br>'.$sql;
+            $result = mysqli_query($link, $sql);
+            if ($result) {echo 1.1;} else {echo("<br>Error description: " . mysqli_error($link));echo 1.2;}
+            $sql = 'SELECT idfilme FROM filme WHERE nomeDoFilme = "'.$nome.'"';
+            $result = mysqli_query($link, $sql);
+            $idfilme = mysqli_fetch_array($result)[0];
+            foreach ($idGeneros as &$value) {
+                $sql = 'INSERT INTO filme_genero (idfilme, idgenero) VALUES ('.$idfilme.', '.$value.')';
+                $result = mysqli_query($link, $sql);
             }
         }
         
-        $generos = pregAllFunction($tagInicioGeneros, $tagFinalGeneros, $paginaAdoroCinema);
-        $sinopse = pregFunction($tagInicioSinopse, $tagFinalSinopse, $paginaAdoroCinema);
-        echo '<br>cheguei no insert';
-        $sql = 'INSERT INTO filme (nomeDoFilme, classificacaoEtaria, sinopse, diretor, elenco) VALUES ("'.$nome.'", '.$classifEtaria.', "'.str_replace('"', '', $sinopse).'", "'.$direcao.'", "'.$atores.'")';
-        echo '<br>'.$sql;
-        $result = mysqli_query($link, $sql);
-        if ($result) {echo 1.1;} else {echo("<br>Error description: " . mysqli_error($link));echo 1.2;}
-        $sql = 'SELECT idfilme FROM filme WHERE nomeDoFilme = "'.$nome.'"';
-        $result = mysqli_query($link, $sql);
-        $idfilme = mysqli_fetch_array($result)[0];
-        foreach ($generos as &$value) {
-            echo '<br>'.$value;
-            $sql = 'SELECT idgenero FROM genero WHERE nomeGenero = "'.$value.'"';
-            $result = mysqli_query($link, $sql);
-            if ($tbl = mysqli_fetch_array($result)) {
-                $idgenero = $tbl[0];
-            } else {
-                echo '<br>Insert G�nero!';
-                $sql = 'INSERT INTO genero (nomeGenero) VALUES ("'.$value.'")';
-                mysqli_query($link, $sql);
-                $sql = 'SELECT idgenero FROM genero WHERE nomeGenero = "'.$value.'"';
-                $result = mysqli_query($link, $sql);
-                
-                $idgenero = mysqli_fetch_array($result)[0];
-            }
-            $sql = 'INSERT INTO filme_genero (idfilme, idgenero) VALUES ('.$idfilme.', '.$idgenero.')';
-            $result = mysqli_query($link, $sql);
-        }
     }
     mysqli_close($link);
     return $idfilme;
@@ -354,7 +326,7 @@ function cadastrarSessoes($matriz) {
     mysqli_query($link, "SET NAMES utf8");
     mysqli_query($link, "SET CHARACTER_SET utf8");
     
-    $sql_remocao = 'DELETE FROM sessao';
+    $sql_remocao = 'DELETE FROM sessao WHERE idcinema = '.$matriz[0][0][1];
     $result = mysqli_query($link, $sql_remocao);
     if (!$result) {
         echo '<br>N�o deletou';
@@ -363,6 +335,7 @@ function cadastrarSessoes($matriz) {
     }
     for ($i = 0; $i < count($matriz); $i++ ) {
         for ($a = 0; $a < count($matriz[$i]); $a++) {
+            
             $sql_insercao = 'INSERT INTO sessao (idfilme, idcinema, tipo_exibicao, e_3d, horario, preco, data) VALUES ('.$matriz[$i][$a][0].', '.$matriz[$i][$a][1].', "'.$matriz[$i][$a][2].'", '.$matriz[$i][$a][3].', "'.$matriz[$i][$a][4].'", "'.$matriz[$i][$a][5].'", "'.$matriz[$i][$a][6].'")';
             echo $sql_insercao;
             $result = mysqli_query($link, $sql_insercao);
@@ -410,6 +383,7 @@ function executar($endereco, $link, $organizacaoSite, $identificadorData, $ident
 }
 
 //Cada site deve ter seu automatizador de listasDePreco
+
 $endereco = ['RN', 'Natal', 'Cinemark Midway Mall', 'Centro', 'Av. Bernardo Vieira', '3775', '(84) 3221-6571', '-5.810457', '-35.206555'];
 $endereco2 = ['SE', 'Aracaju', 'Shopping Jardins - Aracaju', 'Jardim', 'Av.Ministro Geraldo Barreto Sobral', '215', '(79) 3217-5610', '-10.9436232', '-37.0600782'];
 $d2e3 = '2.. e 3..:'; $d4 = '(.*)4..: R\$ (.*) o dia todo'; $d5eEtc = '(.*)5..\,6..\,Sab.\,Dom. e Feriados: ';
