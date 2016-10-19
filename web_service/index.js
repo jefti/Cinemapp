@@ -136,7 +136,7 @@ app.get('/localizacao/', function(req,res){
                 err:    err.code
             });
         } else {
-            sql = 'SELECT `cinema`.`idcinema` AS `idcinema`, `cinema`.`latitude` AS `latitude`, `cinema`.`longitude` AS `longitude` FROM `cinema`';
+            sql = 'SELECT `cinema`.`idcinema` AS `idcinema`, `cinema`.`latitude` AS `latitude`, `cinema`.`longitude` AS `longitude`, `cinema`.`nomeCinema` AS `nome` FROM `cinema`';
             connection.query(sql, req.params.id, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -190,7 +190,7 @@ app.get('/cidade/:idestado', function(req,res){
         }
     });
 });
-app.get('/filme/:idcinema/:index', function(req,res){
+app.get('/filme/:idcinema', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ',err);
@@ -216,7 +216,6 @@ app.get('/filme/:idcinema/:index', function(req,res){
                     err:    '',
                     json:   rows,
                     length: rows.length,
-                    index: req.params.index
                 });
                 connection.release();
             });
