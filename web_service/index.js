@@ -137,6 +137,11 @@ app.get('/localizacao/', function(req,res){
             });
         } else {
             sql = 'SELECT `cinema`.`idcinema` AS `idcinema`, `cinema`.`latitude` AS `latitude`, `cinema`.`longitude` AS `longitude`, `cinema`.`nomeCinema` AS `nome` FROM `cinema`';
+            
+            
+            
+            
+            
             connection.query(sql, req.params.id, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -254,7 +259,7 @@ app.get('/cinema/:idcinema', function(req,res){
         }
     });
 });
-app.get('/sessoes/:estado/:cidade/:cinema/:genero/:filme/:horariomin/:horariomax/:tipoexibicao/:classificacao/:notamin', function(req,res){
+app.get('/sessoes/:cinema/:genero/:filme/:horariomin/:horariomax/:tipoexibicao/:classificacao/:notamin', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         if (err) {
             console.error('CONNECTION error: ',err);
@@ -264,7 +269,32 @@ app.get('/sessoes/:estado/:cidade/:cinema/:genero/:filme/:horariomin/:horariomax
                 err:    err.code
             });
         } else {
-            sql = 'SELECT `filme`.`idfilme` AS `idfilme`, `filme`.`nomeDoFilme` AS `filme` FROM `filme` JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` WHERE `sessao`.`idcinema` = '+req.params.idcinema+' GROUP BY `filme`.`idfilme`';
+            sql = 'SELECT `filme`.`nomeDoFilme` AS `filme`, `cinema`.`nomeCinema` AS `cinema`, `filme`.`classificacaoEtaria` AS `classificacao`, `sessao`.`horario` AS `horario`, `sessao`.`preco` AS `preco`, `sessao`.`tipo_exibicao` AS `tipo_exibicao`, `sessao`.`e_3d` AS `e_3d`, `sessao`.`data` AS `data` FROM filme JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` JOIN cinema ON `filme`.`idfilme` = `sessao`.`idfilme`';
+            if (req.params.filme != 'Selecione') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`filme`.`idfilme` = '"+req.params.filme+"'";
+            }
+            if (req.params.cinema != 'Selecione') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`cinema`.`idcinema` = '"+req.params.cinema+"'";
+            }
+            if (req.params.genero != 'Selecione') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`genero`.`nomeGenero` = '"+req.params.cinema+"'";
+            }
+            if (req.params.classificacao != 'Selecione') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`filme`.`classificacaoEtaria` <= '"+req.params.classificacao+"'";
+            }
+            if (req.params.notamin != '0') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`filme`.`avaliacao` >= '"+req.params.notamin+"'";
+            }
             connection.query(sql, req.params.id, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
