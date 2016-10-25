@@ -254,6 +254,38 @@ app.get('/cinema/:idcinema', function(req,res){
         }
     });
 });
+app.get('/sessoes/:estado/:cidade/:cinema/:genero/:filme/:horariomin/:horariomax/:tipoexibicao/:classificacao/:notamin', function(req,res){
+    connectionpool.getConnection(function(err, connection) {
+        if (err) {
+            console.error('CONNECTION error: ',err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err:    err.code
+            });
+        } else {
+            sql = 'SELECT `filme`.`idfilme` AS `idfilme`, `filme`.`nomeDoFilme` AS `filme` FROM `filme` JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` WHERE `sessao`.`idcinema` = '+req.params.idcinema+' GROUP BY `filme`.`idfilme`';
+            connection.query(sql, req.params.id, function(err, rows, fields) {
+                if (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.send({
+                        result: 'error',
+                        err:    err.code
+                    });
+                }
+                res.header("Access-Control-Allow-Origin", "*");
+                res.send({
+                    result: 'success',
+                    err:    '',
+                    json:   rows,
+                    length: rows.length
+                });
+                connection.release();
+            });
+        }
+    });
+});
 app.get('/:estado/:cidade/:cinema/:genero/:filme', function(req,res){
     connectionpool.getConnection(function(err, connection) {
         var sql = "SELECT `estado`.`siglaEstado` AS `estado`, `cidade`.`nomeCidade` AS `cidade`, `cinema`.`nomeCinema` AS `cinema`,`filme`.`nomeDoFilme` AS `nome`, `filme`.`classificacaoEtaria` AS `classificacao`, `sessao`.`horario` AS `horario`, `sessao`.`preco` AS `preco`, `sessao`.`tipo_exibicao` AS `tipo_exibicao`, `sessao`.`e_3d` AS `e_3d`, `sessao`.`data` AS `data`, GROUP_CONCAT(`genero`.`nomeGenero` SEPARATOR ', ') AS `generos` FROM `filme` JOIN `filme_genero` ON `filme`.`idfilme` = `filme_genero`.`idfilme` JOIN `genero` ON `filme_genero`.`idgenero` = `genero`.`idgenero` JOIN `sessao` ON `sessao`.`idfilme` = `filme`.`idfilme` JOIN `cinema` ON `cinema`.`idcinema` = `sessao`.`idcinema` JOIN `endereco` ON `endereco`.`idendereco` = `cinema`.`idendereco` JOIN `cidade` ON `endereco`.`idcidade` = `cidade`.`idcidade`JOIN `estado` ON `estado`.`idestado` = `cidade`.`idestado`";
