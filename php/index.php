@@ -365,6 +365,7 @@ function cadastrarSessoes($matriz) {
 }
 function executar($endereco, $link, $organizacaoSite, $identificadorData, $identificadorFilme, $inicioHorario, $finalHorario, $inicioNome, $finalNome, $inicioClassificacao, $finalClassificacao, $inicioExibicao, $finalExibicao, $identificador3d, $listaExtras, $horarioInicioNoite, $listaExpressoes, $listaTipos, $feriados, $codificacao) {
     $busca = buscarHTML($link);
+    echo $busca;
     if ($codificacao != "UTF-8") {
         $busca = iconv($codificacao, "UTF-8//TRANSLIT", $busca);
     }
@@ -424,21 +425,21 @@ executar($enderecoCinemarkNatal, 'http://www.cinemark.com.br/programacao/natal/m
 executar($enderecoCinemarkAracajuJardins, 'http://www.cinemark.com.br/programacao/aracaju/shopping-jardins/10/706', 0, 'id="date', '<div class="filme">', '<span id="HH_706_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
 
 
-$d2e3 = 'Seg\.\, ter\. \(exceto fer\.\): '; $d4 = '(.*)Qua\. \(exceto fer\.\): R\$ (.*) \(o dia todo\)'; $d5eEtc = '(.*)Qui\.\, sex\.\, s..b\.\, dom\. e feriado: ';
+$d2e3 = 'Segunda(.*)'; $d4 = 'Quarta(.*)R\$ (.*) \(inteira'; $d5eEtc = 'Quinta(.*)';
 $listaExtras = [[4, 'icovip', 'VIP'], [8, 'icomacroxe', 'MacroXE']];
 $listaTipos = ['Salas Tradicionais<\/b>(.*)', 'Salas 3D<\/b>(.*)', 'Salas VIP<\/b>(.*)', 'Salas VIP 3D<\/b>(.*)', 'Salas Macro XE Tradicionais<\/b>(.*)', 'Salas Macro XE 3D<\/b>(.*)'];
-$listaExpressoes = [[$d2e3.'R\$ (.*) \(matin', $d2e3.'R\$ (.*) \(matin', $d4, $d5eEtc.'R\$ (.*) \(matin', $d5eEtc.'R\$ (.*) \(matin', $d5eEtc.'R\$ (.*) \(matin'],
-    [$d2e3.'(.*) e R\$ (.*) \(noite\)', $d2e3.'(.*) e R\$ (.*) \(noite\)', $d4, $d5eEtc.'(.*) e R\$ (.*) \(noite\)', $d5eEtc.'(.*) e R\$ (.*) \(noite\)', $d5eEtc.'(.*) e R\$ (.*) \(noite\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(matin', $d2e3.'R\$ (.*) \(matin', $d4, $d5eEtc.'R\$ (.*) \(matin', $d5eEtc.'R\$ (.*) \(matin', $d5eEtc.'R\$ (.*) \(matin'],
-    [$d2e3.'(.*) e R\$ (.*) \(noite\)', $d2e3.'(.*) e R\$ (.*) \(noite\)', $d4, $d5eEtc.'(.*) e R\$ (.*) \(noite\)', $d5eEtc.'(.*) e R\$ (.*) \(noite\)', $d5eEtc.'(.*) e R\$ (.*) \(noite\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)'],
-    [$d2e3.'R\$ (.*) \(o dia todo\)', $d2e3.'R\$ (.*) \(o dia todo\)', $d4, $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)', $d5eEtc.'R\$ (.*) \(o dia todo\)']];
+$listaExpressoes = [[$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'(.*)Noite(.*)R\$ (.*) \(inteira', $d2e3.'(.*)Noite(.*)R\$ (.*) \(inteira', $d4, $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira', $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira', $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'(.*)Noite(.*)R\$ (.*) \(inteira', $d2e3.'(.*)Noite(.*)R\$ (.*) \(inteira', $d4, $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira', $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira', $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
+    [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira']];
 executar($enderecoCinepolisNatalShopping, 'http://www.cinepolis.com.br/programacao/cinema.php?cc=31', 0, 'tabelahorarios" id', 'bgcolor', 'aria-label="Comprar ingresso">', '</a>-', 'data-order="', '">', 'aria-label="', ' anos"', '<td class="horarios"(.*)aria-label="', '">', 'ico3d', $listaExtras, 1656, $listaExpressoes, $listaTipos, $feriados, "ISO-8859-1");
 /*
 function mascararTabela() {
