@@ -365,7 +365,7 @@ function cadastrarSessoes($matriz) {
 }
 function executar($endereco, $link, $organizacaoSite, $identificadorData, $identificadorFilme, $inicioHorario, $finalHorario, $inicioNome, $finalNome, $inicioClassificacao, $finalClassificacao, $inicioExibicao, $finalExibicao, $identificador3d, $listaExtras, $horarioInicioNoite, $listaExpressoes, $listaTipos, $feriados, $codificacao) {
     $busca = buscarHTML($link);
-    echo $busca;
+    //echo $busca;
     if ($codificacao != "UTF-8") {
         $busca = iconv($codificacao, "UTF-8//TRANSLIT", $busca);
     }
@@ -421,8 +421,8 @@ $listaExpressoes = [[$d2e3.' R\$ (.*) \(matin', $d2e3.' R\$ (.*) \(matin', $d4, 
     [$d2e3.' R\$ (.*) o dia todo', $d2e3.' R\$ (.*) o dia todo', $d4, $d5eEtc.'R\$ (.*) o dia todo', $d5eEtc.'R\$ (.*) o dia todo', $d5eEtc.'R\$ (.*) o dia todo']];
 //$listaTipos = ['Inteira<\/b><br \/>', 'Inteira<\/b><br \/>', 'Cinemark 3D<\/b><br \/>', 'Cinemark 3D<\/b><br \/>'];
 $feriados = ["01/01", "06/01", "25/03", "21/04", "01/05", "29/06", "07/09", "03/10", "12/10", "02/11", "15/11", "21/11", "21/12", "25/12"];
-executar($enderecoCinemarkNatal, 'http://www.cinemark.com.br/programacao/natal/midway-mall-natal/22/681', 0, 'id="date', '<div class="filme">', '<span id="HH_681_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
-executar($enderecoCinemarkAracajuJardins, 'http://www.cinemark.com.br/programacao/aracaju/shopping-jardins/10/706', 0, 'id="date', '<div class="filme">', '<span id="HH_706_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
+executar($enderecoCinemarkNatal, 'http://www3.cinemark.com.br/natal/cinemas?cinema=681', 0, 'id="date', '<div class="filme">', '<span id="HH_681_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
+//executar($enderecoCinemarkAracajuJardins, 'http://www.cinemark.com.br/programacao/aracaju/shopping-jardins/10/706', 0, 'id="date', '<div class="filme">', '<span id="HH_706_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
 
 
 $d2e3 = 'Segunda(.*)'; $d4 = 'Quarta(.*)R\$ (.*) \(inteira'; $d5eEtc = 'Quinta(.*)';
