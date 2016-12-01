@@ -10,6 +10,7 @@ var express = require('express'),
     });
 app.use(bodyparser.urlencoded({extended: true}));
 app.use(bodyparser.json());
+
 function existeFiltro(temFiltro) {
     if (temFiltro) {
         return " AND ";
@@ -259,8 +260,10 @@ app.get('/cinema/:idcinema', function(req,res){
         }
     });
 });
-app.get('/sessoes/:cinema/:genero/:filme/:horariomin/:horariomax/:tipoexibicao/:classificacao/:notamin', function(req,res){
+app.get('/sessoes/:cinema/:genero/:filme/:horariomin/:horariomax/:tipoexibicao/:classificacao/:preco/:notamin/:numinteracoes', function(req,res){
     connectionpool.getConnection(function(err, connection) {
+        console.log('Numero: '+req.params.numinteracoes+'<=');
+        var temFiltro = false;
         if (err) {
             console.error('CONNECTION error: ',err);
             res.statusCode = 503;
@@ -269,32 +272,57 @@ app.get('/sessoes/:cinema/:genero/:filme/:horariomin/:horariomax/:tipoexibicao/:
                 err:    err.code
             });
         } else {
-            sql = 'SELECT `filme`.`nomeDoFilme` AS `filme`, `cinema`.`nomeCinema` AS `cinema`, `filme`.`classificacaoEtaria` AS `classificacao`, `sessao`.`horario` AS `horario`, `sessao`.`preco` AS `preco`, `sessao`.`tipo_exibicao` AS `tipo_exibicao`, `sessao`.`e_3d` AS `e_3d`, `sessao`.`data` AS `data` FROM filme JOIN sessao ON `filme`.`idfilme` = `sessao`.`idfilme` JOIN cinema ON `filme`.`idfilme` = `sessao`.`idfilme`';
-            if (req.params.filme != 'Selecione') {
-                sql +=existeFiltro(temFiltro);
-                temFiltro = true;
-                sql += "`filme`.`idfilme` = '"+req.params.filme+"'";
-            }
-            if (req.params.cinema != 'Selecione') {
+            sql = "SELECT `filme`.`nomeDoFilme` AS `filme`, `cinema`.`nomeCinema` AS `cinema`, `filme`.`avaliacao` AS `avaliacao`, `filme`.`imagem` AS `imagem`, `filme`.`classificacaoEtaria` AS `classificacao`, `sessao`.`horario` AS `horario`, `sessao`.`preco` AS `preco`, `sessao`.`tipo_exibicao` AS `tipo_exibicao`, `sessao`.`e_3d` AS `e_3d`, `sessao`.`data` AS `data`, GROUP_CONCAT(`genero`.`idgenero` SEPARATOR ', ') AS `generos` FROM `filme` JOIN `filme_genero` ON `filme`.`idfilme` = `filme_genero`.`idfilme` JOIN `genero` ON `filme_genero`.`idgenero` = `genero`.`idgenero` JOIN `sessao` ON `sessao`.`idfilme` = `filme`.`idfilme` JOIN `cinema` ON `cinema`.`idcinema` = `sessao`.`idcinema`";
+            if (req.params.cinema != '*') {
                 sql +=existeFiltro(temFiltro);
                 temFiltro = true;
                 sql += "`cinema`.`idcinema` = '"+req.params.cinema+"'";
             }
-            if (req.params.genero != 'Selecione') {
+            if (req.params.filme != '*') {
                 sql +=existeFiltro(temFiltro);
                 temFiltro = true;
-                sql += "`genero`.`nomeGenero` = '"+req.params.cinema+"'";
+                sql += "`filme`.`idfilme` = '"+req.params.filme+"'";
             }
-            if (req.params.classificacao != 'Selecione') {
+            if (req.params.horariomin != '*') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`sessao`.`horario` >= '"+req.params.horariomin+"'";
+            }
+            if (req.params.horariomax != '*') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`sessao`.`horario` <= '"+req.params.horariomax+"'";
+            }
+            if (req.params.tipoexibicao != '*') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                if (req.params.tipoexibicao == "Du") {
+                    sql += "(`sessao`.`tipo_exibicao` = 'Dublado' OR `sessao`.`tipo_exibicao` = 'Nacional')";
+                } else {
+                    sql += "`sessao`.`tipo_exibicao` = 'Legendado'";
+                }
+            }
+            if (req.params.classificacao != '*') {
                 sql +=existeFiltro(temFiltro);
                 temFiltro = true;
                 sql += "`filme`.`classificacaoEtaria` <= '"+req.params.classificacao+"'";
+            }
+            if (req.params.preco != '*') {
+                sql +=existeFiltro(temFiltro);
+                temFiltro = true;
+                sql += "`sessao`.`preco` <= '"+req.params.preco+"'";
             }
             if (req.params.notamin != '0') {
                 sql +=existeFiltro(temFiltro);
                 temFiltro = true;
                 sql += "`filme`.`avaliacao` >= '"+req.params.notamin+"'";
             }
+            sql += 'GROUP BY `sessao`.`idsessao`';
+            if (req.params.genero != '*') {
+                sql += " HAVING `generos` LIKE '%"+req.params.genero+"%'";
+            }
+            sql += 'ORDER BY `sessao`.`data`, `sessao`.`horario` LIMIT '+req.params.numinteracoes+', 11';
+            console.log('SQL: '+sql+'<=');
             connection.query(sql, req.params.id, function(err, rows, fields) {
                 if (err) {
                     console.error(err);
@@ -377,6 +405,5 @@ app.get('/:estado/:cidade/:cinema/:genero/:filme', function(req,res){
         }
     });
 });
-app.pos
 app.listen(3000);
 console.log('Rest Demo Listening on port 3000');

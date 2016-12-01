@@ -1,4 +1,3 @@
-
 <?php
 date_default_timezone_set('America/Sao_Paulo');
 ini_set('default_charset','UTF-8');
@@ -165,7 +164,6 @@ function cadastrarFilme($nome, $classifEtaria) {
     $usuario = 'root';
     $senha = 'root';
     $banco = 'cinemapp_bd';
-
     //Executa a conexï¿½o com o MySQL
     $link = mysqli_connect($servidor, $usuario, $senha, $banco);
     if (!$link) {
@@ -179,7 +177,6 @@ function cadastrarFilme($nome, $classifEtaria) {
     
     echo '<br>2';
     //echo '<br>'.$link;
-
     $sql = 'SELECT idfilme FROM filme WHERE nomeDoFilme = "'.$nome.'"';
     echo '<br>'.$sql;
     $result = mysqli_query($link, $sql);
@@ -195,14 +192,24 @@ function cadastrarFilme($nome, $classifEtaria) {
     } else {
         
         $saida = json_decode(buscarHTML("https://api.themoviedb.org/3/search/movie?api_key=ca07563cc734bc1679ebeb98b0421676&language=pt-BR&include_adult=false&query=".urlencode($nome)));
-        $saida = ($saida->results[0]);
+        $saida = ($saida->results);
+        $indice = 0;
+        $similaridade = 0;
+        for ($i =  0; $i < count($saida); $i++) {
+            $funcao = similar_text($nome, $saida[$i]->title, $percent);
+            if ($percent >= $similaridade) {
+                $similaridade = $percent;
+                $indice = $i;
+            }
+        }
+        $saida = $saida[$indice];
         $nomeFilme = $saida->title;
         $sql = 'SELECT idfilme FROM filme WHERE nomeDoFilme = "'.$nomeFilme.'"';
         $result = mysqli_query($link, $sql);
         $imagem = "https://image.tmdb.org/t/p/w300_and_h450_bestv2".$saida->poster_path;
         $sinopse = $saida->overview;
         $idGeneros = $saida->genre_ids;
-        $avaliacao = $saida->vote_average;
+        $avaliacao = ($saida->vote_average)/2;
         $headers =  'MIME-Version: 1.0' . "\r\n"; 
         $headers .= 'From: João Marcos <j-m-lima@hotmail.com>' . "\r\n";
         $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
@@ -398,7 +405,7 @@ function executar($endereco, $link, $organizacaoSite, $identificadorData, $ident
             $extras = acharExtras($dias[$a][$b], $listaExtras, $extrasSessao);
             $indicePrecos = acharIndicedePrecos($filmesdia[$b][4], $horarioInicioNoite, $extras[1], $filmesdia[$b][3]);
             $filmesdia[$b][5] = calcularPreco($indicePrecos, $listaPrecos, $feriados, $a);
-            $filmesdia[$b][6] = date('d/m', strtotime('+'.$a.' day'));
+            $filmesdia[$b][6] = date('Y-m-d', strtotime('+'.$a.' day'));
             $filmesdia[$b][7] = $extras[0];
             echo "Data: ".$filmesdia[$b][6]." a: ".$a." hoje: ".date('d/m')."<br>";
         }
@@ -406,13 +413,10 @@ function executar($endereco, $link, $organizacaoSite, $identificadorData, $ident
     }
     cadastrarSessoes($dias);
 }
-
 //Cada site deve ter seu automatizador de listasDePreco
-
 $enderecoCinemarkNatal = ['RN', 'Natal', 'Cinemark Midway Mall', 'Centro', 'Av. Bernardo Vieira', '3775', '(84) 3221-6571', '-5.810457', '-35.206555'];
 $enderecoCinemarkAracajuJardins = ['SE', 'Aracaju', 'Cinemark Shopping Jardins', 'Jardim', 'Av.Ministro Geraldo Barreto Sobral', '215', '(79) 3217-5610', '-10.9436232', '-37.0600782'];
 $enderecoCinepolisNatalShopping = ['RN', 'Natal', 'Cinepolis Natal Shopping', 'Candelaria', 'Av. Senador Salgado Filho', '2234', '(84) 3209-8199', '-5.842221', '-35.211424'];
-
 $d2e3 = '2.. e 3..:'; $d4 = '(.*)4..: R\$ (.*) o dia todo'; $d5eEtc = '(.*)5..\,6..\,Sab.\,Dom. e Feriados: ';
 $listaTipos = ['Inteira(.*)', 'Cinemark 3D(.*)'];
 $listaExpressoes = [[$d2e3.' R\$ (.*) \(matin', $d2e3.' R\$ (.*) \(matin', $d4, $d5eEtc.'R\$ (.*) \(matin', $d5eEtc.'R\$ (.*) \(matin', $d5eEtc.'R\$ (.*) \(matin'],
@@ -423,8 +427,6 @@ $listaExpressoes = [[$d2e3.' R\$ (.*) \(matin', $d2e3.' R\$ (.*) \(matin', $d4, 
 $feriados = ["01/01", "06/01", "25/03", "21/04", "01/05", "29/06", "07/09", "03/10", "12/10", "02/11", "15/11", "21/11", "21/12", "25/12"];
 executar($enderecoCinemarkNatal, 'http://www3.cinemark.com.br/natal/cinemas?cinema=681', 0, 'id="date', '<div class="filme">', '<span id="HH_681_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
 //executar($enderecoCinemarkAracajuJardins, 'http://www.cinemark.com.br/programacao/aracaju/shopping-jardins/10/706', 0, 'id="date', '<div class="filme">', '<span id="HH_706_(.*)">', '</span>(?=</p>)?', 'id="xxxx">', '(?=( 3D)?(&nbsp;)?</a>)', 'censura\/censura', '.png', 'exibicao..jpg" title="', '" alt', 'alt="3D"', false, 1701, $listaExpressoes, $listaTipos, $feriados, "UTF-8");
-
-
 $d2e3 = 'Segunda(.*)'; $d4 = 'Quarta(.*)R\$ (.*) \(inteira'; $d5eEtc = 'Quinta(.*)';
 $listaExtras = [[4, 'icovip', 'VIP'], [8, 'icomacroxe', 'MacroXE']];
 $listaTipos = ['Salas Tradicionais<\/b>(.*)', 'Salas 3D<\/b>(.*)', 'Salas VIP<\/b>(.*)', 'Salas VIP 3D<\/b>(.*)', 'Salas Macro XE Tradicionais<\/b>(.*)', 'Salas Macro XE 3D<\/b>(.*)'];
@@ -440,7 +442,7 @@ $listaExpressoes = [[$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4
     [$d2e3.'(.*)Noite(.*)R\$ (.*) \(inteira', $d2e3.'(.*)Noite(.*)R\$ (.*) \(inteira', $d4, $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira', $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira', $d5eEtc.'(.*)Noite(.*)R\$ (.*) \(inteira'],
     [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira'],
     [$d2e3.'R\$ (.*) \(inteira', $d2e3.'R\$ (.*) \(inteira', $d4, $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira', $d5eEtc.'R\$ (.*) \(inteira']];
-executar($enderecoCinepolisNatalShopping, 'http://www.cinepolis.com.br/programacao/cinema.php?cc=31', 0, 'tabelahorarios" id', 'bgcolor', 'aria-label="Comprar ingresso">', '</a>-', 'data-order="', '">', 'aria-label="', ' anos"', '<td class="horarios"(.*)aria-label="', '">', 'ico3d', $listaExtras, 1656, $listaExpressoes, $listaTipos, $feriados, "ISO-8859-1");
+//executar($enderecoCinepolisNatalShopping, 'http://www.cinepolis.com.br/programacao/cinema.php?cc=31', 0, 'tabelahorarios" id', 'bgcolor', 'aria-label="Comprar ingresso">', '</a>-', 'data-order="', '">', 'aria-label="', ' anos"', '<td class="horarios"(.*)aria-label="', '">', 'ico3d', $listaExtras, 1656, $listaExpressoes, $listaTipos, $feriados, "ISO-8859-1");
 /*
 function mascararTabela() {
     return [[['A Era do Gelo', 0, 'Dublado', true, '16h00', '26,00', '13/07', ['Joï¿½o Marcos'], ['A', 'B', 'C'], ['Animacao', 'Comedia'], 'Sinopse de A Era do Gelo', $endereco],
@@ -449,7 +451,6 @@ function mascararTabela() {
             ['Doutor Estranho', 12, 'Dublado', true, '14h00', '22,00', '14/07', ['Maria Josï¿½'], ['J', 'K', 'L'], ['Suspense', 'Super-Herï¿½i', 'Ficï¿½ï¿½o'], 'Sinopse de Doutor Estranho', $endereco]]];
 }
  */
-
 function comentarios() {
 //Campos para determinados sites:
 //Cinemark:
